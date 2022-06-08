@@ -98,6 +98,23 @@ if __name__ == "__main__":
             error = 'Не выбраны рабочие дни.'
 
         if error is None:
-           pass
+            data = parsing.create_doctor_table(info=info, samples=samples, output_format=output_format)
+            if output_format == 'csv':
+                file = data.to_csv(index=False).encode('windows-1251')
+            else:
+                writer = pd.ExcelWriter(f'Vrachi.{output_format}', engine='xlsxwriter')
+                data.to_excel(writer, encoding='windows-1251', index=False)
+                file = open(f'Vrachi.{output_format}', 'rb')
+                writer.save()
+
+            with st.expander('Превью'):
+                st.write(data)
+
+            st.download_button(
+                label='Скачать данные',
+                data=file,
+                file_name=f'Vrachi.{output_format}',
+                mime=f'text/{output_format}'
+            )
         else:
             st.error(error)
